@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: raw_data # اسم المصدر اللي هنستخدمه في الكود
+    database: STOCKS_DB
+    schema: RAW
+    tables:
+      - name: stocks_raw_data # اسم الجدول اللي فيه الـ 103 ألف سجل

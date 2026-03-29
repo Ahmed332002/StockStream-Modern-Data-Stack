@@ -1,0 +1,16 @@
+# المكتبات الأساسية للتعامل مع Kafka و Avro
+confluent-kafka
+fastavro
+websocket-client
+
+# المكتبات الخاصة بـ AWS/MinIO و Snowflake
+boto3
+snowflake-connector-python
+requests
+
+# الـ Providers بتوع Airflow (عشان الـ Operators تشتغل)
+apache-airflow-providers-snowflake
+apache-airflow-providers-amazon
+
+astronomer-cosmos
+dbt-snowflake

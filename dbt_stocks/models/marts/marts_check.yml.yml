@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: fct_stock_prices
+    description: "Fact table containing daily stock transaction prices and volumes"
+    columns:
+      - name: fact_key
+        description: "Primary key for the fact table, generated as a surrogate key"
+        tests:
+          - unique
+          - not_null
+
+      - name: company_key
+        description: "Foreign key referencing dim_companies (SCD Type 2)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_companies')
+              field: company_key
+
+      - name: symbol
+        description: "The stock ticker symbol (e.g., AAPL)"
+        tests:
+          - not_null
+
+      - name: price
+        description: "The price of the stock at the time of transaction"
+        tests:
+          - not_null
+          # Custom test to ensure price is always greater than 0
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+
+      - name: volume
+        description: "The number of shares traded"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: total_value
+        description: "Calculated field: Price multiplied by Volume"
+        tests:
+          - not_null
+          # Ensures calculation logic is consistent
+          - dbt_utils.expression_is_true:
+              expression: "= price * volume"
