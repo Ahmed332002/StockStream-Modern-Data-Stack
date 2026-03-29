@@ -2,7 +2,7 @@
 
 An enterprise-grade **Modern Data Stack** platform designed to transform high-frequency, fragmented stock market data into a unified analytics foundation. The system implements a **Hybrid Architecture** (Streaming + Batch) to support real-time operational monitoring and deep historical analysis.
 
-📋 Table of Contents
+## 📋 Table of Contents
 - [Business Context](#-business-context)
 - [Architecture Overview](#-architecture-overview)
 - [Problem Statement](#-problem-statement)
