@@ -3,20 +3,20 @@
 An enterprise-grade **Modern Data Stack** platform designed to transform high-frequency, fragmented stock market data into a unified analytics foundation. The system implements a **Hybrid Architecture** (Streaming + Batch) to support real-time operational monitoring and deep historical analysis.
 
 📋 Table of Contents
-- [Business Context](#business-context)
-- [Architecture Overview](#architecture-overview)
-- [Problem Statement](#problem-statement)
-- [Solution Design](#solution-design)
-- [Project Structure](#project-structure)
-- [Technology Stack](#technology-stack)
-- [Data Pipeline](#data-pipeline)
-- [Key Features](#key-features)
-- [Deliverables](#deliverables)
-- [Installation & Setup](#installation--setup)
+- [Business Context](#-business-context)
+- [Architecture Overview](#-architecture-overview)
+- [Problem Statement](#-problem-statement)
+- [Solution Design](#-solution-design)
+- [Project Structure](#-project-structure)
+- [Technology Stack](#-technology-stack)
+- [Data Pipeline](#-data-pipeline)
+- [Key Features](#-key-features)
+- [Deliverables](#-deliverables)
+- [Installation--setup](#-installation--setup)
 
 ---
 
-🎯 Business Context
+## 🎯 Business Context
 The financial data landscape is characterized by extreme volatility and high volume. This platform was built to solve critical data challenges for financial analysts:
 * **Global Coverage**: Tracking ticker symbols across multiple exchanges.
 * **Real-time Volatility**: Prices change in milliseconds, requiring sub-second ingestion.
@@ -25,7 +25,7 @@ The financial data landscape is characterized by extreme volatility and high vol
 
 ---
 
-🏗️ Architecture Overview
+## 🏗️ Architecture Overview
 The platform implements a **Hybrid Lambda-style Architecture** for maximum reliability:
 
 **Data Sources (Market APIs / WebSockets)**
@@ -60,7 +60,7 @@ The platform implements a **Hybrid Lambda-style Architecture** for maximum relia
 
 -----
 
-🔍 Problem Statement
+## 🔍 Problem Statement
 
 | Challenge | Impact | Solution |
 | :--- | :--- | :--- |
@@ -72,7 +72,7 @@ The platform implements a **Hybrid Lambda-style Architecture** for maximum relia
 
 -----
 
-💡 Solution Design
+## 💡 Solution Design
 
 ### 1\. Streaming Layer (Hot Path)
 
@@ -95,7 +95,7 @@ The platform implements a **Hybrid Lambda-style Architecture** for maximum relia
 
 -----
 
-📁 Project Structure
+## 📁 Project Structure
 
 ```text
 FINAL/
@@ -122,7 +122,7 @@ FINAL/
 
 -----
 
-🛠️ Technology Stack
+## 🛠️ Technology Stack
 
   * **Ingestion**: Python, Apache Kafka, Confluent Schema Registry (Avro).
   * **Storage**: MinIO (S3-Compatible Object Storage).
@@ -133,7 +133,7 @@ FINAL/
 
 -----
 
-📊 Data Pipeline
+## 📊 Data Pipeline
 
 ### Batch Pipeline (Daily/Micro-batch)
 
@@ -152,7 +152,7 @@ FINAL/
 
 -----
 
-✨ Key Features
+## ✨ Key Features
 
 1.  **SCD Type 2 Snapshots**: Utilizes dbt Snapshots to track historical changes in company metadata.
 2.  **Incremental Loading**: Optimized Fact tables to process only new deltas, reducing Snowflake costs.
@@ -162,7 +162,7 @@ FINAL/
 
 -----
 
-📦 Deliverables
+## 📦 Deliverables
 
 1.  **Snowflake Data Warehouse**: Fully modeled Galaxy Schema (Bronze/Silver/Gold).
 2.  **Power BI Dashboard**: Real-time vs. Historical Price Trends.
@@ -171,7 +171,7 @@ FINAL/
 
 -----
 
-🚀 Installation & Setup
+## 🚀 Installation & Setup
 
 1.  **Clone the Repository**:
 
