@@ -15,7 +15,7 @@ s3 = boto3.client(
 )
 bucket_name = "bronze-stocks"
 
-# إعداد Finnhub
+# setup Finnhub API client
 API_KEY = 'd7279r1r01qjeeeg6g2gd7279r1r01qjeeeg6g30'
 finnhub_client = finnhub.Client(api_key=API_KEY)
 
@@ -24,7 +24,7 @@ SYMBOLS = ['BINANCE:BTCUSDT', 'BINANCE:ETHUSDT', 'AAPL', 'TSLA', 'GOOGL', 'MSFT'
 def get_companies_metadata():
     companies_data = []
     for symbol in SYMBOLS:
-        if ":" in symbol: continue # تفادي الكريبتو
+        if ":" in symbol: continue # currently skipping crypto since their metadata structure is different and we want to focus on stocks for this part
             
         try:
             profile = finnhub_client.company_profile2(symbol=symbol)
@@ -34,11 +34,11 @@ def get_companies_metadata():
         except Exception as e:
             print(f"❌ Error fetching {symbol}: {e}")
             
-    # 1. حفظ محلي مؤقت
+    # temporary save to local file before uploading to MinIO
     with open('companies_metadata.json', 'w') as f:
         json.dump(companies_data, f, indent=4)
     
-    # 2. الرفع لـ MinIO في فولدر خاص بالـ Metadata
+    # upload the metadata file to MinIO
     try:
         s3.upload_file('companies_metadata.json', bucket_name, 'metadata/companies_metadata.json')
         print(f"🚀 Metadata uploaded to MinIO: {bucket_name}/metadata/companies_metadata.json")

@@ -8,12 +8,12 @@ from botocore.client import Config
 from cosmos import ProjectConfig, ProfileConfig, ExecutionConfig, DbtTaskGroup
 from cosmos.profiles import SnowflakeUserPasswordProfileMapping
 
-# إعدادات الربط
+# setup environment variables for MinIO credentials
 MINIO_ENDPOINT = 'http://host.docker.internal:9002' 
 BUCKET_NAME = 'bronze-stocks'
 
 def ingest_all_minio_to_snowflake():
-    # 1. إعداد اتصال MinIO
+    # connect to MinIO
     s3_client = boto3.client(
         's3',
         endpoint_url=MINIO_ENDPOINT,
@@ -22,7 +22,7 @@ def ingest_all_minio_to_snowflake():
         config=Config(signature_version='s3v4', s3={'addressing_style': 'path'})
     )
 
-    # 2. إعداد اتصال Snowflake
+    # connect to Snowflake
     conn = snowflake.connector.connect(
         user=os.getenv('SNOWFLAKE_USER'),
         password=os.getenv('SNOWFLAKE_PASSWORD'),
@@ -53,32 +53,32 @@ def ingest_all_minio_to_snowflake():
             for obj in page['Contents']:
                 file_key = obj['Key']
                 
-                # تخطي المجلد نفسه أو أي ملف مش JSON
+                # just a safety check to ensure we only process JSON files in the inbox folder
                 if file_key == prefix or not file_key.lower().endswith('.json'):
                     continue
 
                 total_found += 1
                 
-                # تحميل الملف مؤقتاً
+                # temporarily download the file locally for staging
                 local_path = f"/tmp/{os.path.basename(file_key)}"
                 s3_client.download_file(BUCKET_NAME, file_key, local_path)
                 
                 current_batch_local_paths.append(local_path)
                 processed_keys.append(file_key)
 
-                # إذا وصلنا لحجم الـ Batch، ارفعهم لسنوفلاك
+                # batch upload to Snowflake Stage when batch size is reached
                 if len(current_batch_local_paths) >= batch_size:
                     print(f"📤 Batch Ready: Uploading {len(current_batch_local_paths)} files to Snowflake Stage...")
                     cur.execute("PUT 'file:///tmp/*.json' @%STOCKS_RAW_DATA OVERWRITE=TRUE PARALLEL=16")
                     
-                    # تنظيف المجلد المؤقت
+                    # cleanup local files after upload
                     for f in current_batch_local_paths:
                         if os.path.exists(f): os.remove(f)
                     
                     print(f"✅ Batch Uploaded. Total progress: {total_found} files tracked.")
                     current_batch_local_paths = []
 
-        # رفع آخر مجموعة متبقية
+        # upload any remaining files in the last batch
         if current_batch_local_paths:
             print(f"📤 Uploading final batch of {len(current_batch_local_paths)} files...")
             cur.execute("PUT 'file:///tmp/*.json' @%STOCKS_RAW_DATA OVERWRITE=TRUE PARALLEL=16")
@@ -86,7 +86,7 @@ def ingest_all_minio_to_snowflake():
                 if os.path.exists(f): os.remove(f)
         
         if total_found > 0:
-            # 3. تنفيذ عملية الـ COPY INTO
+            # copy data from stage to Snowflake table
             print(f"📥 Snowflake Stage is full. Executing COPY INTO for {total_found} files...")
             copy_sql = """
             COPY INTO STOCKS_DB.RAW.STOCKS_RAW_DATA (
@@ -103,7 +103,7 @@ def ingest_all_minio_to_snowflake():
             cur.execute("REMOVE @%STOCKS_RAW_DATA")
             print("✨ Data successfully loaded into STOCKS_RAW_DATA and stage cleared.")
 
-            # 4. الأرشفة: نقل الملفات من inbox إلى archive
+            # track processed files by moving them to an archive folder in MinIO
             print(f"📦 Starting Archiving process for {len(processed_keys)} files...")
             for key in processed_keys:
                 archive_key = key.replace('inbox/', 'archive/')
@@ -131,7 +131,7 @@ def ingest_all_minio_to_snowflake():
 
 
 DBT_PROJECT_PATH = "/usr/local/airflow/dbt_stocks"
-# المسار الافتراضي للـ dbt جوه Astro (أو الـ venv لو كنت عامله)
+
 DBT_EXECUTABLE_PATH = "/usr/local/bin/dbt"
 
 project_config = ProjectConfig(
@@ -143,14 +143,13 @@ profile_config = ProfileConfig(
     profile_name="dbt_stocks", 
     target_name="dev",
     profile_mapping=SnowflakeUserPasswordProfileMapping(
-        conn_id="snowflake_conn", # الاسم اللي عملناه في الـ UI
+        conn_id="snowflake_conn", 
         profile_args={
-            "schema": "SILVER", # الـ Schema الوحيدة اللي بنحددها يدوي هنا
+            "schema": "SILVER", 
         },
     ),
 )
 
-# 4. إعدادات التنفيذ
 execution_config = ExecutionConfig(
     dbt_executable_path=DBT_EXECUTABLE_PATH,
 )
@@ -158,6 +157,7 @@ execution_config = ExecutionConfig(
 with DAG(
     "final_optimized_ingestion_v6",
     start_date=datetime(2026, 3, 1),
+    ## "*/5 * * * *"
     schedule=None,
     catchup=False,
     tags=['production', 'stocks', 'monitored']
@@ -175,7 +175,7 @@ with DAG(
     profile_config=profile_config,
     execution_config=execution_config,
     operator_args={
-        "install_deps": True, # عشان ينزل الـ packages لو مش موجودة
+        "install_deps": True, 
         "select": ["path:models/staging", "path:models/marts"],
         "full_refresh": False,
         },

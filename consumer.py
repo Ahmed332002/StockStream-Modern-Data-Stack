@@ -50,15 +50,15 @@ try:
             print(f"❌ Consumer error: {msg.error()}")
             continue
 
-        # فك تشفير البيانات (Value)
+        # deserialize the Avro message to a Python dict
         record = avro_deserializer(msg.value(), None)
         
-        # --- الـ Pro Move: إضافة الـ Metadata ---
+        # add Kafka metadata to the record for tracking
         record["kafka_partition"] = msg.partition()
         record["kafka_offset"] = msg.offset()
-        record["ingested_at"] = msg.timestamp()[1] # وقت وصولها لكافكا
+        record["ingested_at"] = msg.timestamp()[1] # time when the message was produced
         
-        # تحويل لـ JSON وحفظه في MinIO
+        # track processed files by saving them to MinIO with a unique key based on symbol and Kafka offset
         symbol = record['symbol']
         offset = record['kafka_offset']
         file_path = f"inbox/{symbol}_{offset}.json"

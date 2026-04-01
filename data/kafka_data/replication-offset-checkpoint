@@ -1,6 +1,6 @@
 0
 54
-__consumer_offsets 29 15
+__consumer_offsets 29 19
 __consumer_offsets 43 0
 __consumer_offsets 0 0
 __consumer_offsets 6 0
@@ -23,8 +23,8 @@ __consumer_offsets 40 0
 __consumer_offsets 27 0
 __consumer_offsets 17 0
 __consumer_offsets 32 0
-finnhub_stocks 1 49732
-__consumer_offsets 39 1835
+finnhub_stocks 1 57570
+__consumer_offsets 39 2132
 __consumer_offsets 2 0
 __consumer_offsets 12 0
 __consumer_offsets 44 0
@@ -33,7 +33,7 @@ __consumer_offsets 45 0
 __consumer_offsets 16 0
 __consumer_offsets 10 0
 __consumer_offsets 11 0
-_schemas 0 15
+_schemas 0 19
 __consumer_offsets 20 0
 __consumer_offsets 47 0
 __consumer_offsets 18 0
@@ -46,11 +46,11 @@ __consumer_offsets 42 0
 __consumer_offsets 28 0
 __consumer_offsets 4 0
 __consumer_offsets 31 0
-finnhub_stocks 0 50176
+finnhub_stocks 0 57825
 __consumer_offsets 5 0
 __consumer_offsets 1 0
 __consumer_offsets 15 0
 __consumer_offsets 38 0
 __consumer_offsets 34 0
 __consumer_offsets 9 0
-finnhub_stocks 2 5884
+finnhub_stocks 2 7156

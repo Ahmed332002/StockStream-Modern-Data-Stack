@@ -1,4 +1,5 @@
 # 📈 End-to-End Real-Time Data Platform: Global Stock Market Analytics
+![Real-Time Stock Market Data Pipeline](docs/stack.jpeg)
 
 An enterprise-grade **Modern Data Stack** platform designed to transform high-frequency, fragmented stock market data into a unified analytics foundation. The system implements a **Hybrid Architecture** (Streaming + Batch) to support real-time operational monitoring and deep historical analysis.
 
@@ -78,11 +79,11 @@ The platform implements a **Hybrid Lambda-style Architecture** for maximum relia
 
   * **Purpose**: Real-time event capture with high throughput and schema governance.
   * **Flow**:
-      * **Data Ingestion (`producer.py`)**: Python-based producers fetching real-time market ticks.
+      * **Data Ingestion (`producer.py`)**: Python-based producers fetch real-time market ticks from external APIs.
       * **Metadata Management (`fetch_metadata.py`)**: Automated scripts to fetch and sync company reference data (`companies_metadata.json`).
-      * **Serialization**: **Avro** format used to minimize payload size and enforce schema.
-      * **Governance**: **Schema Registry** ensures compatibility between producers and consumers.
-      * **Sinking (`consumer.py`)**: Distributed consumers encoding data into Avro and sinking to **MinIO (S3)**.
+      * **Serialization**:  Producers serialize events using **Avro** before publishing to Kafka topics, ensuring compact payloads and schema enforcement.
+      * **Governance**: **Schema Registry** manages Avro schemas and enforces backward/forward compatibility between producers and consumers.
+      * **Sinking (`consumer.py`)**: Distributed consumers read from Kafka, deserialize Avro messages, and write raw events into **MinIO (S3)** as the Bronze layer.
 
 ### 2\. Batch Layer (Cold Path) - Analytics Engineering
 
