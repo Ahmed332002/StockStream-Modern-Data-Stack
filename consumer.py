@@ -7,26 +7,26 @@ from confluent_kafka.schema_registry.avro import AvroDeserializer
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=".env")
-# 2. قراءة القيم من الملف
+# 2. Read values from the file
 MINIO_USER = os.getenv("MINIO_ROOT_USER")
 MINIO_PASS = os.getenv("MINIO_ROOT_PASSWORD")
 
-# 1. إعدادات MinIO
+# Setup MinIO
 s3 = boto3.client(
     "s3",
-    endpoint_url="http://localhost:9002", # بورت الـ API بتاع MinIO
+    endpoint_url="http://localhost:9002", # Api endpoint for MinIO
     aws_access_key_id=MINIO_USER,
     aws_secret_access_key=MINIO_PASS
 )
 bucket_name = "bronze-stocks"
 
-# تأكد إن الباكت موجود
+# check if the bucket exists, if not create it
 try:
     s3.head_bucket(Bucket=bucket_name)
 except:
     s3.create_bucket(Bucket=bucket_name)
 
-# 2. إعدادات كافكا و Schema Registry
+# 2. Setup Kafka and Schema Registry
 conf = {
     'bootstrap.servers': 'localhost:29092',
     'group.id': 'on-prem-consumer-group',
@@ -40,14 +40,14 @@ avro_deserializer = AvroDeserializer(schema_client)
 consumer = Consumer(conf)
 consumer.subscribe(['finnhub_stocks'])
 
-print("🚀 Consumer is running... Waiting for messages...")
+print(" Consumer is running... Waiting for messages...")
 
 try:
     while True:
         msg = consumer.poll(1.0)
         if msg is None: continue
         if msg.error():
-            print(f"❌ Consumer error: {msg.error()}")
+            print(f" Consumer error: {msg.error()}")
             continue
 
         # deserialize the Avro message to a Python dict
@@ -69,7 +69,7 @@ try:
             Key=file_path,
             Body=json.dumps(record)
         )
-        print(f"✅ Saved to MinIO: {file_path}")
+        print(f" Saved to MinIO: {file_path}")
 
 except KeyboardInterrupt:
     pass

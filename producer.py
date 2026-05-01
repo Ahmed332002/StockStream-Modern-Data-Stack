@@ -24,9 +24,9 @@ KAFKA_BOOTSTRAP_SERVERS = 'localhost:29092'
 
 def delivery_report(err, msg):
     if err is not None:
-        print(f"❌ Message delivery failed: {err}")
+        print(f" Message delivery failed: {err}")
     else:
-        print(f"✅ Message delivered to {msg.topic()} [{msg.partition()}]")
+        print(f" Message delivered to {msg.topic()} [{msg.partition()}]")
 
 
 schema_client = SchemaRegistryClient({'url': SCHEMA_REGISTRY_URL})
@@ -57,15 +57,15 @@ def on_message(ws, message):
             try:
                 producer.produce(topic='finnhub_stocks',key=payload['symbol'], value=payload, on_delivery=delivery_report)
                 producer.poll(0) 
-                print(f"🚀 Sent: {payload['symbol']} @ {payload['price']}")
+                print(f" Sent: {payload['symbol']} @ {payload['price']}")
             except Exception as e:
-                print(f"⚠️ Error producing message: {e}")
+                print(f" Error producing message: {e}")
 
 def on_error(ws, error):
-    print(f"❗ WebSocket Error: {error}")
+    print(f" WebSocket Error: {error}")
 
 def on_close(ws, close_status_code, close_msg):
-    print("🔌 Connection Closed")
+    print(" Connection Closed")
 
 SYMBOLS = [
     'BINANCE:BTCUSDT', 

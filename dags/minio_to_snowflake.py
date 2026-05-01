@@ -35,8 +35,8 @@ def ingest_all_minio_to_snowflake():
 
     try:
         prefix = 'inbox/'
-        print(f"🚀 Starting Ingestion Pipeline for Bucket: {BUCKET_NAME}")
-        print(f"🔍 Searching for new files in: {prefix}...")
+        print(f" Starting Ingestion Pipeline for Bucket: {BUCKET_NAME}")
+        print(f" Searching for new files in: {prefix}...")
         
         paginator = s3_client.get_paginator('list_objects_v2')
         pages = paginator.paginate(Bucket=BUCKET_NAME, Prefix=prefix)
@@ -68,26 +68,26 @@ def ingest_all_minio_to_snowflake():
 
                 # batch upload to Snowflake Stage when batch size is reached
                 if len(current_batch_local_paths) >= batch_size:
-                    print(f"📤 Batch Ready: Uploading {len(current_batch_local_paths)} files to Snowflake Stage...")
+                    print(f" Batch Ready: Uploading {len(current_batch_local_paths)} files to Snowflake Stage...")
                     cur.execute("PUT 'file:///tmp/*.json' @%STOCKS_RAW_DATA OVERWRITE=TRUE PARALLEL=16")
                     
                     # cleanup local files after upload
                     for f in current_batch_local_paths:
                         if os.path.exists(f): os.remove(f)
                     
-                    print(f"✅ Batch Uploaded. Total progress: {total_found} files tracked.")
+                    print(f" Batch Uploaded. Total progress: {total_found} files tracked.")
                     current_batch_local_paths = []
 
         # upload any remaining files in the last batch
         if current_batch_local_paths:
-            print(f"📤 Uploading final batch of {len(current_batch_local_paths)} files...")
+            print(f" Uploading final batch of {len(current_batch_local_paths)} files...")
             cur.execute("PUT 'file:///tmp/*.json' @%STOCKS_RAW_DATA OVERWRITE=TRUE PARALLEL=16")
             for f in current_batch_local_paths:
                 if os.path.exists(f): os.remove(f)
         
         if total_found > 0:
             # copy data from stage to Snowflake table
-            print(f"📥 Snowflake Stage is full. Executing COPY INTO for {total_found} files...")
+            print(f" Snowflake Stage is full. Executing COPY INTO for {total_found} files...")
             copy_sql = """
             COPY INTO STOCKS_DB.RAW.STOCKS_RAW_DATA (
                 json_data, file_name, file_row_number, ingested_at, batch_id
@@ -101,10 +101,10 @@ def ingest_all_minio_to_snowflake():
             """
             cur.execute(copy_sql)
             cur.execute("REMOVE @%STOCKS_RAW_DATA")
-            print("✨ Data successfully loaded into STOCKS_RAW_DATA and stage cleared.")
+            print(" Data successfully loaded into STOCKS_RAW_DATA and stage cleared.")
 
             # track processed files by moving them to an archive folder in MinIO
-            print(f"📦 Starting Archiving process for {len(processed_keys)} files...")
+            print(f" Starting Archiving process for {len(processed_keys)} files...")
             for key in processed_keys:
                 archive_key = key.replace('inbox/', 'archive/')
                 s3_client.copy_object(
@@ -114,12 +114,12 @@ def ingest_all_minio_to_snowflake():
                 )
                 s3_client.delete_object(Bucket=BUCKET_NAME, Key=key)
             
-            print(f"⭐ MISSION ACCOMPLISHED: {total_found} files processed and moved to archive.")
+            print(f" MISSION ACCOMPLISHED: {total_found} files processed and moved to archive.")
         else:
-            print("ℹ️ No new files found in 'inbox/'. Nothing to process.")
+            print(" No new files found in 'inbox/'. Nothing to process.")
 
     except Exception as e:
-        print(f"❌ CRITICAL ERROR during ingestion: {str(e)}")
+        print(f" CRITICAL ERROR during ingestion: {str(e)}")
         raise e
     finally:
         cur.close()

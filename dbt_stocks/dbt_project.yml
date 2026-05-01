@@ -34,6 +34,6 @@ models:
     # Config indicated by + and applies to all files under models/example/
    # staging:
     #  +schema: SILVER
-    # الموديلات اللي في فولدر marts أو gold تروح لـ gold
+    # models in marts/ will be built as tables, and will be in the GOLD schema
    # marts:
      # +schema: GOLD
